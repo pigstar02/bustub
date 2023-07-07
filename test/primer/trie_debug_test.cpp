@@ -29,7 +29,7 @@ TEST(TrieDebugger, TestCase) {
   trie = trie.Put<uint32_t>("3", 57);
   trie = trie.Put<uint32_t>("93", 30);
   trie = trie.Put<uint32_t>("75", 29);
-  std::cout << (*trie.Get<uint32_t>("93")) << "=================answer\n"; 
+  std::cout << (*trie.Get<uint32_t>("93")) << "=================answer\n";
   // Put a breakpoint here.
 
   // (1) How many children nodes are there on the root?
