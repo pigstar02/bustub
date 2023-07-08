@@ -13,6 +13,7 @@
 #include "buffer/lru_k_replacer.h"
 #include <cstddef>
 #include <ctime>
+#include <memory>
 #include "common/exception.h"
 
 namespace bustub {
@@ -24,6 +25,7 @@ auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool {
     if (curr_size_ <= 0) {
         return false;
     }
+    std::unique_lock<std::mutex> lk(latch_);
     if (!node_less_k_.empty()) {
         *frame_id = (*node_less_k_.begin())->GetFid();
         node_store_.erase(node_store_.find(*frame_id));
@@ -48,6 +50,7 @@ auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool {
 }
 
 void LRUKReplacer::RecordAccess(frame_id_t frame_id, AccessType access_type) {
+    std::unique_lock<std::mutex> lk(latch_);
     if (node_store_.find(frame_id) == node_store_.end()) {
         auto *newnode = new LRUKNode;
         newnode->SetK(1);
@@ -73,6 +76,7 @@ void LRUKReplacer::RecordAccess(frame_id_t frame_id, AccessType access_type) {
 }
 
 void LRUKReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {
+    std::unique_lock<std::mutex> lk(latch_);
     auto p_node = node_store_.find(frame_id);
     if (p_node == node_store_.end()) {
         return;
