@@ -19,6 +19,11 @@
 namespace bustub {
 
 LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_frames), k_(k) {}
+LRUKReplacer::~LRUKReplacer() {
+    for (auto [id, node] : node_store_) {
+        delete node;
+    }
+}
 
 auto LRUKReplacer::Evict(frame_id_t *frame_id) -> bool {
     replacer_size_ = 0;
@@ -109,7 +114,12 @@ void LRUKReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {
 }
 
 void LRUKReplacer::Remove(frame_id_t frame_id) {
-   
+    node_less_k_.erase(node_store_[frame_id]);
+    node_more_k_.erase(node_store_[frame_id]);
+    if (node_store_[frame_id]->GetEvictable()) {
+        curr_size_ -= 1;
+    }
+    node_store_.erase(node_store_.find(frame_id));
 }
 
 auto LRUKReplacer::Size() -> size_t { return curr_size_; }
