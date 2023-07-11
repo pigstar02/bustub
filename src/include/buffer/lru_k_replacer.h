@@ -16,9 +16,9 @@
 #include <limits>
 #include <list>
 #include <mutex>  // NOLINT
+#include <set>
 #include <unordered_map>
 #include <vector>
-#include <set>
 
 #include "common/config.h"
 #include "common/macros.h"
@@ -36,36 +36,20 @@ class LRUKNode {
   size_t k_{0};
   frame_id_t fid_;
   bool is_evictable_{false};
+
  public:
- LRUKNode() = default;
- ~LRUKNode() = default;
-  void SetEvictable(bool set_evictable) {
-    is_evictable_ = set_evictable;
-  }
-  auto GetEvictable() -> bool {
-    return is_evictable_;
-  }
-  auto GetDis() const -> size_t {
-    return *history_.begin();
-  }
-  auto GetFid() const -> frame_id_t {
-    return fid_;
-  }
-  auto GetK() const -> size_t {
-    return k_;
-  }
-  auto SetK(size_t add) {
-    k_ += add;
-  }
-  auto SetFid(frame_id_t id) {
-    fid_ = id;
-  }
-  auto Push(size_t tamp) {
-    history_.push_back(tamp);
-  }
-  auto Pop() {
-    history_.pop_front();
-  }
+  LRUKNode() = default;
+  ~LRUKNode() = default;
+  void SetEvictable(bool set_evictable) { is_evictable_ = set_evictable; }
+  auto GetEvictable() -> bool { return is_evictable_; }
+  auto GetDis() const -> size_t { return *history_.begin(); }
+  auto GetFid() const -> frame_id_t { return fid_; }
+  auto GetK() const -> size_t { return k_; }
+  auto SetK(size_t add) { k_ += add; }
+  auto SetFid(frame_id_t id) { fid_ = id; }
+  auto Push(size_t tamp) { history_.push_back(tamp); }
+  auto Pop() { history_.pop_front(); }
+  auto Clear() { history_.clear(); }
 };
 
 /**
@@ -178,20 +162,18 @@ class LRUKReplacer {
    * @return size_t
    */
   auto Size() -> size_t;
-  static auto MyCompare(LRUKNode* a, LRUKNode* b) -> bool {
-    return a->GetDis() < b->GetDis(); 
+  auto GetEvictable(frame_id_t frame_id) -> bool;
+  static auto MyCompare(LRUKNode *a, LRUKNode *b) -> bool { return a->GetDis() < b->GetDis(); };
+  struct NodeSortCriterion {
+    auto operator()(const LRUKNode *a, const LRUKNode *b) const -> bool { return (a->GetDis()) < (b->GetDis()); }
   };
-  struct NodeSortCriterion{
-      auto operator() (const LRUKNode* a, const LRUKNode* b) const -> bool {  
-        return (a->GetDis()) < (b->GetDis());
-      } 
-  };
+
  private:
   // TODO(student): implement me! You can replace these member variables as you like.
   // Remove maybe_unused if you start using them.
-  std::unordered_map<frame_id_t, LRUKNode*> node_store_;
-  std::set<LRUKNode*, LRUKReplacer::NodeSortCriterion> node_less_k_;
-  std::set<LRUKNode*, LRUKReplacer::NodeSortCriterion> node_more_k_;
+  std::unordered_map<frame_id_t, LRUKNode *> node_store_;
+  std::set<LRUKNode *, LRUKReplacer::NodeSortCriterion> node_less_k_;
+  std::set<LRUKNode *, LRUKReplacer::NodeSortCriterion> node_more_k_;
   size_t current_timestamp_{0};
   size_t curr_size_{0};
   size_t replacer_size_;

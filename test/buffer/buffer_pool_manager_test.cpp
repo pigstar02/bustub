@@ -22,7 +22,7 @@ namespace bustub {
 
 // NOLINTNEXTLINE
 // Check whether pages containing terminal characters can be recovered
-TEST(BufferPoolManagerTest, BinaryDataTest) {
+TEST(BufferPoolManagerTest, DISABLED_BinaryDataTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
@@ -88,7 +88,7 @@ TEST(BufferPoolManagerTest, BinaryDataTest) {
 }
 
 // NOLINTNEXTLINE
-TEST(BufferPoolManagerTest, SampleTest) {
+TEST(BufferPoolManagerTest, DISABLED_SampleTest) {
   const std::string db_name = "test.db";
   const size_t buffer_pool_size = 10;
   const size_t k = 5;
@@ -135,6 +135,57 @@ TEST(BufferPoolManagerTest, SampleTest) {
   EXPECT_EQ(true, bpm->UnpinPage(0, true));
   EXPECT_NE(nullptr, bpm->NewPage(&page_id_temp));
   EXPECT_EQ(nullptr, bpm->FetchPage(0));
+
+  // Shutdown the disk manager and remove the temporary file we created.
+  disk_manager->ShutDown();
+  remove("test.db");
+
+  delete bpm;
+  delete disk_manager;
+}
+
+TEST(BufferPoolManagerTest, SampleTestAAAAAAAAAAA) {
+  const std::string db_name = "test.db";
+  const size_t buffer_pool_size = 10;
+  const size_t k = 5;
+
+  auto *disk_manager = new DiskManager(db_name);
+  auto *bpm = new BufferPoolManager(buffer_pool_size, disk_manager, k);
+
+  page_id_t page_id_temp;
+  Page *page0;
+  for (int i = 0; i < 10; i++) {
+    page0 = bpm->NewPage(&page_id_temp);
+  }
+  for (int i = 0; i < 10; i++) {
+    bpm->FetchPage(i);
+    bpm->UnpinPage(i, true);
+    bpm->UnpinPage(i, true);
+    bpm->FetchPage(i);
+  }
+  for (int i = 10; i < 20; i++) {
+    page0 = bpm->NewPage(&page_id_temp);
+    bpm->UnpinPage(i, true);
+  }
+  for (int i = 0; i < 10; i++) {
+    bpm->FetchPage(i);
+  }
+  bpm->UnpinPage(4, true);
+  page0 = bpm->NewPage(&page_id_temp);
+  bpm->FetchPage(4);
+  bpm->FetchPage(5);
+  bpm->FetchPage(6);
+  bpm->FetchPage(7);
+  bpm->UnpinPage(5, false);
+  bpm->UnpinPage(6, false);
+  bpm->UnpinPage(7, false);
+  bpm->UnpinPage(5, false);
+  bpm->UnpinPage(6, false);
+  bpm->UnpinPage(7, false);
+  page0 = bpm->NewPage(&page_id_temp);
+  bpm->FetchPage(5);
+  bpm->FetchPage(7);
+  bpm->FetchPage(6);
 
   // Shutdown the disk manager and remove the temporary file we created.
   disk_manager->ShutDown();

@@ -47,6 +47,7 @@ class Page {
 
   /** @return the pin count of this page */
   inline auto GetPinCount() -> int { return pin_count_; }
+  inline auto SetPinCount(int add) -> void { pin_count_ += add; }
 
   /** @return true if the page in memory has been modified from the page on disk, false otherwise */
   inline auto IsDirty() -> bool { return is_dirty_; }
